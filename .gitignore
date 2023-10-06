@@ -1,0 +1,11 @@
+.venv
+.env
+.vscode
+.DS_Store
+output
+*.mp4
+*.mp3
+*.webm
+*.session
+*.session-journal
+**/__pycache__

@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "yt-dlp-tgbot"
+version = "0.1.0"
+description = "Simple Telegram bot to download YouTube videos"
+authors = ["Ilya Chesalin <ilya.chesalin@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-telegram-bot = "^20.6"
+yt-dlp = "^2023.9.24"
+pyrogram = "^2.0.106"
+tgcrypto = "^1.2.5"
+tqdm = "^4.66.1"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
