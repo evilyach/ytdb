@@ -2,9 +2,22 @@ version: "3"
 
 services:
   tgbot:
-    container_name: tgbot
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
       - '.:/app/'
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.2.1-alpine
+    expose:
+      - 6379
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis:/data
+
+volumes:
+  redis:
+    driver: local

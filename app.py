@@ -1,9 +1,10 @@
+import asyncio
+
 from dotenv import load_dotenv
 
-from app import get_app
+from app import main
 
 if __name__ == "__main__":
     load_dotenv()
 
-    app = get_app()
-    app.run()
+    asyncio.run(main())

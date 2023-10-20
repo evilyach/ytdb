@@ -1,0 +1,2 @@
+class NotInitialisedError(Exception):
+    pass
