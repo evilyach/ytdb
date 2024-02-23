@@ -1,5 +1,7 @@
-.venv
 .env
+.venv
+.mypy_cache
+.pytest_cache
 .vscode
 .DS_Store
 output
@@ -9,3 +11,4 @@ output
 *.session
 *.session-journal
 **/__pycache__
+**/*.db
