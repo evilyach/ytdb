@@ -5,8 +5,7 @@ from typing import Awaitable, Callable
 from pyrogram.client import Client
 from pyrogram.types import Message
 
-from app.models import User
-from app.queries import create_user, get_user_by_id, is_whitelisted
+from app.queries import is_whitelisted
 
 logger = logging.getLogger(__name__)
 
@@ -18,18 +17,9 @@ def whitelisted(func: HandlerType) -> HandlerType:
 
     @wraps(func)
     async def inner(client: Client, message: Message) -> None:
-        if not await get_user_by_id(message.from_user.id):
-            user = User(id=message.from_user.id)
-            await create_user(user)
-
-            logger.info(f"Created user with id = {message.from_user.id}!")
-
-            await client.delete_messages(message.chat.id, message.id)
-            await message.reply("You don't have permission. Contact admin to request access to use this bot.")
-
-            return
-
         if not await is_whitelisted(message.from_user.id):
+            await client.delete_messages(message.chat.id, message.id)
+
             logger.warning(f"User with id = {message.from_user.id} tried to access '{func}'!")
             await message.reply("You don't have permission to access this resource.")
 

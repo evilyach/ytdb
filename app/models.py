@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Optional
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
@@ -20,6 +21,7 @@ class User(Base):
 
     is_audio_only: Mapped[bool] = mapped_column(default=False)
     is_send_voice: Mapped[bool] = mapped_column(default=False)
+    is_remove_sponsors: Mapped[bool] = mapped_column(default=False)
     quality: Mapped[VideoQuality] = mapped_column(default=VideoQuality.default)
 
     def __repr__(self) -> str:
@@ -33,7 +35,7 @@ class DownloadEntry(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     url: Mapped[str] = mapped_column()
-    name: Mapped[str] = mapped_column()
+    name: Mapped[Optional[str]] = mapped_column()
 
     def __repr__(self) -> str:
         return f"DownloadEntry(id={self.id!r}, name={self.name!r})"
