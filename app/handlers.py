@@ -43,7 +43,7 @@ async def help_handler(client: Client, message: Message) -> None:
         "- 4chan.\n"
         "- DailyMotion.\n"
         "\n"
-        "В настоящее время есть проблемы с:"
+        "В настоящее время есть проблемы с:\n"
         "- Instagram Reels.\n"
         "- RuTube Shorts.\n"
         "\n"
