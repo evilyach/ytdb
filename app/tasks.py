@@ -5,7 +5,9 @@ from typing import Any, NamedTuple
 
 import ffmpeg
 from pyrogram.client import Client
+from pyrogram.types import Message
 from yt_dlp import YoutubeDL
+from yt_dlp.utils import DownloadError
 
 from app.config import settings
 from app.models import DownloadEntry, User
@@ -17,6 +19,7 @@ logger = logging.getLogger(__name__)
 class HandleUrlTaskData(NamedTuple):
     url: str
     client: Client
+    message: Message
     user_id: int
     chat_id: int
     ydl: YoutubeDL
@@ -27,7 +30,17 @@ async def get_info_task(data: HandleUrlTaskData) -> dict[str, Any]:
 
     logger.info(f"Downloading the info about '{data.url}'...")
 
-    info = await asyncio.to_thread(data.ydl.extract_info, data.url, download=False)
+    try:
+        info = await asyncio.to_thread(data.ydl.extract_info, data.url, download=False)
+    except DownloadError as error:
+        logger.error(error)
+        logger.error("Can't download info.")
+
+        if "Access restricted" in str(error):
+            await data.message.reply("Maybe video is private.")
+
+        raise
+
     if not info:
         logger.warning(f"No info was downloaded for link: '{data.url}'")
         logger.warning(f"Most likely, link doesn't contain any videos.")

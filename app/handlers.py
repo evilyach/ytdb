@@ -67,7 +67,12 @@ async def download_handler(client: Client, message: Message) -> None:
         tasks = [
             handle_url_task(
                 HandleUrlTaskData(
-                    url=url, client=client, chat_id=message.chat.id, user_id=message.from_user.id, ydl=ydl
+                    url=url,
+                    client=client,
+                    message=message,
+                    chat_id=message.chat.id,
+                    user_id=message.from_user.id,
+                    ydl=ydl,
                 )
             )
             for url in urls
@@ -82,6 +87,6 @@ async def download_handler(client: Client, message: Message) -> None:
                 logger.warning("Error occurred while executing the task.")
 
                 raise
-
-    await client.delete_messages(message.chat.id, start_message.id)
-    await client.delete_messages(message.chat.id, message.id)
+            finally:
+                await client.delete_messages(message.chat.id, start_message.id)
+                await client.delete_messages(message.chat.id, message.id)
