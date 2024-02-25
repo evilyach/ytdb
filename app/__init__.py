@@ -7,7 +7,7 @@ from pyrogram.sync import idle
 
 from app.config import Settings
 from app.db import init_db
-from app.handlers import download_handler, start_handler
+from app.handlers import download_handler, help_handler, start_handler
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ async def main(settings: Settings) -> None:
     )
 
     app.add_handler(MessageHandler(start_handler, filters.command("start")))
+    app.add_handler(MessageHandler(help_handler, filters.command("help")))
     app.add_handler(MessageHandler(download_handler, filters.text & filters.private))
 
     await init_db()
