@@ -11,7 +11,7 @@ from yt_dlp.utils import DownloadError
 
 from app.config import settings
 from app.models import DownloadEntry, User
-from app.queries import add, get_user_by_id
+from app.queries import add, get_user_by_id, update_user_is_audio_only
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class HandleUrlTaskData(NamedTuple):
     url: str
     client: Client
     message: Message
-    user_id: int
+    user: User
     chat_id: int
     ydl: YoutubeDL
 
@@ -52,7 +52,7 @@ async def get_info_task(data: HandleUrlTaskData) -> dict[str, Any]:
     return info
 
 
-async def download_video_locally_task(data: HandleUrlTaskData) -> None:
+async def download_media_locally_task(data: HandleUrlTaskData) -> None:
     """Download the video locally."""
 
     logger.info(f"Downloading the video from '{data.url}' locally...")
@@ -179,11 +179,16 @@ async def handle_url_task(data: HandleUrlTaskData) -> None:
     if not info:
         return
 
-    filepath = f"./output/{info['id']}.mp4"
+    ext = "mp3" if data.user.is_audio_only else "mp4"
+    filepath = f"./output/{info['id']}.{ext}"
     logger.info(f"{info['id']} - {info.keys() = }")
 
-    await download_video_locally_task(data)
-    await send_video_to_user_task(data, info, filepath)
+    await download_media_locally_task(data)
+
+    if data.user.is_audio_only:
+        await send_audio_to_user_task(data, info, filepath)
+    else:
+        await send_video_to_user_task(data, info, filepath)
 
     # Wait before deleting the video to use it as cache
     logger.info(f"Waiting for {settings.video_cache_time} seconds to keep '{data.url}' in cache...")
@@ -191,7 +196,7 @@ async def handle_url_task(data: HandleUrlTaskData) -> None:
         await asyncio.sleep(settings.video_cache_time)
 
     # Create an entry in the database about the download
-    entry = DownloadEntry(user_id=data.user_id, url=data.url, name=info.get("title", None))
+    entry = DownloadEntry(user_id=data.user.id, url=data.url, name=info.get("title", None))
     await add(entry)
 
     clean_up_task(info["id"])
@@ -211,3 +216,23 @@ async def register_user_task(user_id: int) -> None:
         logger.error(f"Could not resigster user with id = {user_id}!")
 
     logger.info(f"Created user with id = {user_id}!")
+
+
+async def toggle_is_audio_only_task(user_id: int) -> str:
+    try:
+        user = await update_user_is_audio_only(user_id)
+    except ValueError as error:
+        logger.error(error)
+        logger.error(f"Could not switch audio settings for user '{user_id}'")
+
+        raise
+
+    is_audio_only = user.is_audio_only
+
+    logger.info(f"User '{user.id}' updated 'is_audio_only = {is_audio_only}'")
+
+    return (
+        "Обновили настройки: скачивается только аудио (для песен, подкастов)."
+        if is_audio_only
+        else "Обновили настройки: скачивается видео со звуком."
+    )
