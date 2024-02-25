@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from io import StringIO
-from typing import Generator
 
 from pyrogram.client import Client
 from pyrogram.types import Message
@@ -11,6 +10,7 @@ from app.logger import YtdlpLogger
 from app.queries import get_user_by_id
 from app.security import whitelisted
 from app.tasks import HandleUrlTaskData, handle_url_task, register_user_task
+from app.validators import validate_url
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,20 @@ async def start_handler(client: Client, message: Message) -> None:
 
 @whitelisted
 async def download_handler(client: Client, message: Message) -> None:
-    urls = StringIO(message.text).readlines()
+    urls = []
+
+    for url in StringIO(message.text).readlines():
+        if not validate_url(url):
+            logger.info(f"Tried to download link '{url}', which is not a valid URL.")
+            continue
+
+        urls.append(url.strip())
+
+    if not urls:
+        logger.info(f"User {message.from_user.id} tried to provide invalid links only.")
+        await message.reply("You didn't seem to provide any valid links. Please try again.")
+
+        return
 
     opts = {
         "format": "mp4/best",

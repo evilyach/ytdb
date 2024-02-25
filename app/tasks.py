@@ -2,8 +2,8 @@ import asyncio
 import logging
 import os
 from typing import Any, NamedTuple
-import ffmpeg
 
+import ffmpeg
 from pyrogram.client import Client
 from yt_dlp import YoutubeDL
 
@@ -126,7 +126,7 @@ async def send_audio_to_user_task(data: HandleUrlTaskData, info: dict, filepath:
             duration=info.get("duration", None),
             performer=performer,
             title=track,
-            caption=f'{info.get("title", None)} ({data.url.strip()})',
+            caption=f'{info.get("title", None)} ({data.url})',
         )
     except Exception as error:
         logger.error(error)
