@@ -20,13 +20,9 @@ async def start_handler(client: Client, message: Message) -> None:
 
     if not await get_user_by_id(message.from_user.id):
         await register_user_task(message.from_user.id)
-        await message.reply("You are now registered. Contact admin to request access to use this bot.")
+        await message.reply("Вы зарегистрированы. Обратитесь к @evilyach за доступом к боту.")
 
-    await message.reply(
-        "Send me a link to a YouTube video. You can choose if you want to "
-        "download full video, or you just want to download audio from the "
-        "video."
-    )
+    await message.reply("Привет! Отправьте ссылку на любое видео, которое хотите скачать.")
 
 
 @whitelisted
@@ -42,7 +38,7 @@ async def download_handler(client: Client, message: Message) -> None:
 
     if not urls:
         logger.info(f"User {message.from_user.id} tried to provide invalid links only.")
-        await message.reply("You didn't seem to provide any valid links. Please try again.")
+        await message.reply("Похоже, Вы не отправили ни одной ссылки. Попробуйте еще раз.")
 
         return
 
@@ -60,7 +56,7 @@ async def download_handler(client: Client, message: Message) -> None:
         "writethumbnail": True,
     }
 
-    start_message = await client.send_message(message.chat.id, "Starting the download.")
+    start_message = await client.send_message(message.chat.id, "Начинаю скачивание...")
 
     with YoutubeDL(opts) as ydl:
         # Get the tasks for downloading the videos
@@ -83,7 +79,7 @@ async def download_handler(client: Client, message: Message) -> None:
             try:
                 await task
             except Exception:
-                await message.reply("Download failed. 😢")
+                await message.reply("Не удалось скачать видео по ссылке. 😢")
                 logger.warning("Error occurred while executing the task.")
 
                 raise

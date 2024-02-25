@@ -21,7 +21,7 @@ def whitelisted(func: HandlerType) -> HandlerType:
             await client.delete_messages(message.chat.id, message.id)
 
             logger.warning(f"User with id = {message.from_user.id} tried to access '{func}'!")
-            await message.reply("You don't have permission to access this resource.")
+            await message.reply("У Вас не доступа к этому ресурсу.")
 
             return
 

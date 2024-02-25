@@ -37,7 +37,7 @@ async def get_info_task(data: HandleUrlTaskData) -> dict[str, Any]:
         logger.error("Can't download info.")
 
         if "Access restricted" in str(error):
-            await data.message.reply("Maybe video is private.")
+            await data.message.reply("Скорее всего, видео приватное.")
 
         raise
 
